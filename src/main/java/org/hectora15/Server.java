@@ -6,8 +6,8 @@ package org.hectora15;
  */
 public class Server {
     private String name;
-    private int capacity;           // Max requests in processing
-    private int processingTimeMs;   // Average response time
+    private int capacity;           // Max requests en procesamiento
+    private int processingTimeMs;   // Tiempo promedio respuesta
     private long totalRequests = 0;
     private long successfulRequests = 0;
     private long failedRequests = 0;
@@ -19,8 +19,8 @@ public class Server {
     }
 
     /**
-     * Processes a request.
-     * Based on the success boolean, it registers a success or failure.
+     * Procesa un request.
+     * En base a la probabilidad, devuelve éxito o fallo.
      */
     public void processRequest(Request req, boolean success) {
         totalRequests++;
@@ -31,11 +31,17 @@ public class Server {
             successfulRequests++;
         } else {
             req.setSuccess(false);
-            req.setResponseTimeMs(processingTimeMs * 2); // Error means slower response
+            req.setResponseTimeMs(processingTimeMs * 2); // Error = más lento
             failedRequests++;
         }
     }
 
+    // Nuevo método para que el simulador conozca el límite
+    public int getCapacity() {
+        return capacity;
+    }
+
+    // Estadísticas
     public double getSuccessRate() {
         if (totalRequests == 0) return 0;
         return (double) successfulRequests / totalRequests;

@@ -6,9 +6,6 @@
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
@@ -17,13 +14,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SimulatorController">
+<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.hectora15.ui.SimulatorController">
     <left>
         <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: #e9ecef;" BorderPane.alignment="CENTER">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Simulation Setup" />
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Configuración del Servidor" />
 
             <GridPane vgap="15.0">
                 <columnConstraints>
@@ -37,61 +34,46 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
 
-                <Label text="Simulation Hours:" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                    <tooltip><Tooltip text="Total duration of the simulation. E.g., 24 for a full day." /></tooltip>
+                <Label text="Horas a Simular:" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <tooltip><Tooltip text="Duración total de la simulación. Ej. 24 para un día completo." /></tooltip>
                 </Label>
                 <TextField fx:id="hoursInput" text="1" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Poisson Lambda:" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                    <tooltip><Tooltip text="Average requests per second. Represents how many users try to connect." /></tooltip>
+                <Label text="Tráfico Promedio:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <tooltip><Tooltip text="Peticiones por segundo promedio. Representa cuántos usuarios intentan conectarse." /></tooltip>
                 </Label>
                 <TextField fx:id="lambdaInput" text="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Bernoulli Prob (p):" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                    <tooltip><Tooltip text="Server reliability (0.0 to 1.0). E.g., 0.98 means 98% of requests succeed." /></tooltip>
+                <Label text="Confiabilidad (p):" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <tooltip><Tooltip text="Confiabilidad del servidor (0.0 a 1.0). Ej. 0.98 significa que el 98% de las peticiones tendrán éxito." /></tooltip>
                 </Label>
                 <TextField fx:id="probabilityInput" text="0.98" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Random Seed:" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                    <tooltip><Tooltip text="A number to initialize the scenario. Same seed = same results." /></tooltip>
+                <Label text="Semilla Aleatoria:" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                    <tooltip><Tooltip text="Número para inicializar el escenario. Misma semilla = mismos resultados." /></tooltip>
                 </Label>
                 <TextField fx:id="seedInput" text="42" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </GridPane>
 
-            <Button fx:id="runSimulationButton" maxWidth="Double.MAX_VALUE" mnemonicParsing="false" onAction="#executeSimulation" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px;" text="Start Simulation" />
-            <Label fx:id="statusLabel" text="Status: Waiting for input..." wrapText="true"/>
+            <Button fx:id="runSimulationButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#executeSimulation" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px;" text="Iniciar Simulación" />
+            <Label fx:id="statusLabel" text="Estado: Esperando datos..." wrapText="true"/>
         </VBox>
     </left>
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-            <tabs>
-                <Tab text="Visual Dashboard">
-                    <VBox spacing="15.0">
-                        <padding>
-                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                        </padding>
-                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Server Performance Metrics" />
-                        <PieChart fx:id="successPieChart" prefHeight="250.0" title="Success vs Failure Rate" />
-                        <LineChart fx:id="trafficLineChart" prefHeight="300.0" title="Traffic Spikes Over Time (Sampled)">
-                            <xAxis>
-                                <NumberAxis label="Time (Seconds)" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis label="Requests per Second" />
-                            </yAxis>
-                        </LineChart>
-                    </VBox>
-                </Tab>
-                <Tab text="Statistical Validation Logs">
-                    <VBox spacing="10.0">
-                        <padding>
-                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                        </padding>
-                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Raw Simulation Logs" />
-                        <TextArea fx:id="consoleOutput" editable="false" style="-fx-font-family: 'monospaced';" VBox.vgrow="ALWAYS" />
-                    </VBox>
-                </Tab>
-            </tabs>
-        </TabPane>
+        <VBox spacing="15.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Métricas de Rendimiento Visuales" />
+            <PieChart fx:id="successPieChart" prefHeight="250.0" title="Tasa de Éxito vs Fallo" />
+            <LineChart fx:id="trafficLineChart" prefHeight="300.0" title="Picos de Tráfico a lo Largo del Tiempo">
+                <xAxis>
+                    <NumberAxis label="Tiempo (Segundos)" />
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Peticiones por Segundo" />
+                </yAxis>
+            </LineChart>
+        </VBox>
     </center>
 </BorderPane>

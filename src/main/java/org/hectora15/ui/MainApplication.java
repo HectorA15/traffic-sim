@@ -1,5 +1,6 @@
 package org.hectora15.ui;
 
+import atlantafx.base.theme.PrimerDark;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,6 +12,8 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage primaryWindow) throws Exception {
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+
         URL interfaceFile = getClass().getResource("/simulator_view.fxml");
 
         if (interfaceFile == null) {

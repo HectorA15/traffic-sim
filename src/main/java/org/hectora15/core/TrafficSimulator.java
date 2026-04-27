@@ -7,12 +7,6 @@ import java.util.*;
 /**
  * 6. MONTE CARLO METHOD
  * Main simulator: Monte Carlo over server traffic.
- *
- * Flow:
- * 1. Generates N hours of traffic.
- * 2. Each second, Poisson determines incoming requests.
- * 3. For each request, Bernoulli determines success.
- * 4. Records metrics.
  */
 public class TrafficSimulator {
     private Poisson poisson;
@@ -39,6 +33,7 @@ public class TrafficSimulator {
         requestsPerSecond = new int[totalSeconds];
 
         for (int second = 0; second < totalSeconds; second++) {
+            // 1. Poisson decide cuántas peticiones llegan este segundo
             int arrivingRequests = poisson.nextArrivalCount();
             requestsPerSecond[second] = arrivingRequests;
             maxSecondsPerSecond = Math.max(maxSecondsPerSecond, arrivingRequests);
@@ -47,7 +42,17 @@ public class TrafficSimulator {
                 long arrivalTimeMs = (long) second * 1000L;
                 Request req = new Request(arrivalTimeMs, "/api/endpoint");
 
-                boolean success = trial.trial();
+                boolean success;
+
+                // === LÓGICA DE SOBRECARGA ===
+                // Si el número de petición 'i' supera la capacidad del servidor, falla automáticamente
+                if (i >= server.getCapacity()) {
+                    success = false;
+                } else {
+                    // Si el servidor aún tiene espacio, usamos Bernoulli para ver si tiene éxito
+                    success = trial.trial();
+                }
+
                 server.processRequest(req, success);
 
                 allRequests.add(req);
@@ -70,7 +75,6 @@ public class TrafficSimulator {
         return server;
     }
 
-    // Required for validation methods
     public int[] getRequestsPerSecond() {
         return requestsPerSecond;
     }

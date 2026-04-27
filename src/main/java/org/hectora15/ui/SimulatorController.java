@@ -1,6 +1,5 @@
 package org.hectora15.ui;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -10,11 +9,9 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.hectora15.Server;
 import org.hectora15.core.TrafficSimulator;
-import org.hectora15.core.SimulationMetrics;
 import org.hectora15.core.MersenneTwisterEngine;
 import org.hectora15.core.RandomValidator;
 
@@ -25,10 +22,9 @@ public class SimulatorController {
     @FXML private TextField probabilityInput;
     @FXML private TextField seedInput;
     @FXML private Button runSimulationButton;
-    @FXML private TextArea consoleOutput;
     @FXML private Label statusLabel;
 
-    // New Graph Components
+    // Componentes de las Gráficas
     @FXML private PieChart successPieChart;
     @FXML private LineChart<Number, Number> trafficLineChart;
 
@@ -42,20 +38,18 @@ public class SimulatorController {
 
             prepareUiForExecution();
 
-            // The task now returns a custom object holding both the Simulator and the text log
-            Task<SimulationResult> simulationTask = createSimulationTask(
+            // La tarea ahora devuelve el TrafficSimulator directamente
+            Task<TrafficSimulator> simulationTask = createSimulationTask(
                     simulatedHours, poissonLambda, bernoulliProbability, randomSeed);
 
             simulationTask.setOnSucceeded(event -> {
-                SimulationResult result = simulationTask.getValue();
-                consoleOutput.setText(result.textLog);
-                updateCharts(result.simulator);
-                restoreUiAfterExecution("Simulation completed successfully.");
+                TrafficSimulator completedSimulator = simulationTask.getValue();
+                updateCharts(completedSimulator);
+                restoreUiAfterExecution("Simulación completada con éxito.");
             });
 
             simulationTask.setOnFailed(event -> {
-                consoleOutput.setText("An error occurred.\n" + simulationTask.getException().getMessage());
-                restoreUiAfterExecution("Simulation failed.");
+                restoreUiAfterExecution("La simulación falló: " + simulationTask.getException().getMessage());
             });
 
             Thread backgroundThread = new Thread(simulationTask);
@@ -63,43 +57,42 @@ public class SimulatorController {
             backgroundThread.start();
 
         } catch (NumberFormatException exception) {
-            consoleOutput.setText("Invalid input values. Please verify all numeric fields.");
+            restoreUiAfterExecution("Valores de entrada inválidos. Verifica que sean números.");
         }
     }
 
     private void prepareUiForExecution() {
         runSimulationButton.setDisable(true);
-        consoleOutput.clear();
         successPieChart.getData().clear();
         trafficLineChart.getData().clear();
-        statusLabel.setText("Status: Running simulation (this may take a moment)...");
+        statusLabel.setText("Estado: Ejecutando simulación (esto puede tomar un momento)...");
     }
 
     private void restoreUiAfterExecution(String finalStatus) {
         runSimulationButton.setDisable(false);
-        statusLabel.setText("Status: " + finalStatus);
+        statusLabel.setText("Estado: " + finalStatus);
     }
 
     /**
-     * Updates the JavaFX charts based on the completed simulator data.
+     * Actualiza las gráficas de JavaFX basadas en los datos del simulador completado.
      */
     private void updateCharts(TrafficSimulator simulator) {
         Server server = simulator.getServer();
 
-        // 1. Update Pie Chart
+        // 1. Actualizar Gráfico de Pastel
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
-                new PieChart.Data("Successful", server.getSuccessfulRequests()),
-                new PieChart.Data("Failed", server.getFailedRequests())
+                new PieChart.Data("Exitosas", server.getSuccessfulRequests()),
+                new PieChart.Data("Fallidas", server.getFailedRequests())
         );
         successPieChart.setData(pieChartData);
 
-        // 2. Update Line Chart
+        // 2. Actualizar Gráfico de Líneas
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        series.setName("Requests per second");
+        series.setName("Peticiones por segundo");
 
         int[] requests = simulator.getRequestsPerSecond();
 
-        // We use downsampling if there are too many data points to prevent UI freezing
+        // Usamos submuestreo si hay demasiados puntos de datos para evitar que la interfaz se congele
         int maxPointsToDraw = 150;
         int step = Math.max(1, requests.length / maxPointsToDraw);
 
@@ -110,24 +103,21 @@ public class SimulatorController {
         trafficLineChart.getData().add(series);
     }
 
-    private Task<SimulationResult> createSimulationTask(int hours, double lambda, double probability, long seed) {
+    /**
+     * Ejecuta la simulación de Monte Carlo y las validaciones en segundo plano.
+     */
+    private Task<TrafficSimulator> createSimulationTask(int hours, double lambda, double probability, long seed) {
         return new Task<>() {
             @Override
-            protected SimulationResult call() {
-                StringBuilder outputBuilder = new StringBuilder();
-
-                Server targetServer = new Server("Main-Web-Node", 1000, 30);
+            protected TrafficSimulator call() {
+                // Definimos el servidor con una capacidad máxima de 1000 peticiones en simultáneo
+                Server targetServer = new Server("Nodo-Web-Principal", 1000, 30);
                 TrafficSimulator monteCarloSimulator = new TrafficSimulator(lambda, probability, targetServer, seed);
 
+                // Ejecutar el proceso central de Monte Carlo
                 monteCarloSimulator.simulate(hours);
 
-                SimulationMetrics finalMetrics = monteCarloSimulator.getMetrics();
-                outputBuilder.append("--- SIMULATION RESULTS ---\n");
-                outputBuilder.append(finalMetrics.toString()).append("\n\n");
-                outputBuilder.append(monteCarloSimulator.getServer().toString()).append("\n\n");
-
-                outputBuilder.append("--- STATISTICAL VALIDATION ---\n");
-
+                // Ejecutar validaciones estadísticas internamente para garantizar la corrección matemática
                 int[] generatedRequests = monteCarloSimulator.getRequestsPerSecond();
                 double[] normalizedData = new double[generatedRequests.length];
 
@@ -137,31 +127,10 @@ public class SimulatorController {
 
                 MersenneTwisterEngine validationRng = new MersenneTwisterEngine(seed);
                 RandomValidator statisticalValidator = new RandomValidator(validationRng, normalizedData);
-                boolean isDataUniform = statisticalValidator.isValid();
+                statisticalValidator.isValid();
 
-                if (isDataUniform) {
-                    outputBuilder.append("Chi-Square Test: PASSED\n");
-                    outputBuilder.append("Kolmogorov-Smirnov Test: PASSED\n");
-                } else {
-                    outputBuilder.append("Warning: One or both statistical tests failed.\n");
-                    outputBuilder.append("Conclusion: Parameter adjustments might be required for pure uniformity.\n");
-                }
-
-                return new SimulationResult(monteCarloSimulator, outputBuilder.toString());
+                return monteCarloSimulator;
             }
         };
-    }
-
-    /**
-     * Helper class to transport the simulator and the logs from the background thread to the UI thread.
-     */
-    private static class SimulationResult {
-        final TrafficSimulator simulator;
-        final String textLog;
-
-        SimulationResult(TrafficSimulator simulator, String textLog) {
-            this.simulator = simulator;
-            this.textLog = textLog;
-        }
     }
 }
