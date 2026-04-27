@@ -1,8 +1,11 @@
 package org.hectora15.core;
 
-
 import org.apache.commons.math3.random.MersenneTwister;
 
+/**
+ * 1. MERSENNE TWISTER METHOD
+ * Core random number generator engine.
+ */
 public class MersenneTwisterEngine {
 
     private MersenneTwister rng;
@@ -15,7 +18,6 @@ public class MersenneTwisterEngine {
         this.rng = new MersenneTwister(seed);
     }
 
-
     public double nextDouble() {
         return this.rng.nextDouble();
     }
@@ -27,5 +29,4 @@ public class MersenneTwisterEngine {
     public long nextLong() {
         return this.rng.nextLong();
     }
-
 }

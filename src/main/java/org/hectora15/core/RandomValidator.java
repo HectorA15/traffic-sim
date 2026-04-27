@@ -1,18 +1,20 @@
 package org.hectora15.core;
 
+/**
+ * Validates the simulation data using both Chi-Square and Kolmogorov methods.
+ */
 public class RandomValidator {
-
-        Kolmogorov kolmogorov;
-        ChiCuadrada chiCuadrada;
-
-        double[] data;
+        private Kolmogorov kolmogorov;
+        private ChiSquare chiSquare;
 
         public RandomValidator(MersenneTwisterEngine random, double[] data) {
                 this.kolmogorov = new Kolmogorov(data.length, random);
-                this.chiCuadrada = new ChiCuadrada(100, data);
+                this.chiSquare = new ChiSquare(100, data);
         }
 
-        public boolean isValid(double[] data){
-                return (kolmogorov.ejecutarPrueba() && chiCuadrada.isUniforme());
+        public boolean isValid() {
+                boolean ksTest = kolmogorov.executeTest().passesTest();
+                boolean chiTest = chiSquare.isUniform();
+                return ksTest && chiTest;
         }
 }
