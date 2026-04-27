@@ -1,9 +1,6 @@
-package org.hectora15;
+package org.hectora15.core;
 
-/**
- * Web server that processes requests.
- * It registers successes, failures, and statistics.
- */
+
 public class Server {
     private String name;
     private int capacity;           // Max requests en procesamiento
@@ -18,10 +15,6 @@ public class Server {
         this.processingTimeMs = processingTimeMs;
     }
 
-    /**
-     * Procesa un request.
-     * En base a la probabilidad, devuelve éxito o fallo.
-     */
     public void processRequest(Request req, boolean success) {
         totalRequests++;
 
@@ -36,12 +29,10 @@ public class Server {
         }
     }
 
-    // Nuevo método para que el simulador conozca el límite
     public int getCapacity() {
         return capacity;
     }
 
-    // Estadísticas
     public double getSuccessRate() {
         if (totalRequests == 0) return 0;
         return (double) successfulRequests / totalRequests;

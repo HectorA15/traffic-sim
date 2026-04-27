@@ -2,9 +2,7 @@ package org.hectora15.core;
 
 import java.util.Arrays;
 
-/**
- * Container for simulation metrics.
- */
+// Container for simulation metrics.
 public class SimulationMetrics {
     private long totalRequests;
     private long successfulRequests;
@@ -36,22 +34,6 @@ public class SimulationMetrics {
             variance += Math.pow(val - mean, 2);
         }
         this.stdDeviation = Math.sqrt(variance / sorted.length);
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Total Requests: %,d\n" +
-                        "Successful: %,d (%.2f%%)\n" +
-                        "Failed: %,d (%.2f%%)\n" +
-                        "Max Requests/sec: %d\n" +
-                        "Percentile 5%%: %d\n" +
-                        "Percentile 95%%: %d\n" +
-                        "Std Deviation: %.2f",
-                totalRequests, successfulRequests, getSuccessRate(),
-                failedRequests, getFailureRate(), maxRequestsPerSecond,
-                percentile5, percentile95, stdDeviation
-        );
     }
 
     public void setTotalRequests(long total) { this.totalRequests = total; }

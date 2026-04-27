@@ -1,8 +1,6 @@
-package org.hectora15;
+package org.hectora15.core;
 
-/**
- * Represents an individual HTTP request.
- */
+//Represents an individual HTTP request.
 public class Request {
     private long arrivalTimeMs;
     private int responseTimeMs;

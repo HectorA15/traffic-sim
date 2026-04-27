@@ -1,9 +1,6 @@
-package org.hectora15.core;
+package org.hectora15.logic;
 
-/**
- * 3. POISSON METHOD
- * Models the arrival of network requests in bursts.
- */
+
 public class Poisson {
     private double lambda;
     private MersenneTwisterEngine rng;

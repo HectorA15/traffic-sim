@@ -1,8 +1,6 @@
-package org.hectora15.core;
+package org.hectora15.logic;
 
-/**
- * Validates the simulation data using both Chi-Square and Kolmogorov methods.
- */
+
 public class RandomValidator {
         private Kolmogorov kolmogorov;
         private ChiSquare chiSquare;
@@ -13,8 +11,15 @@ public class RandomValidator {
         }
 
         public boolean isValid() {
-                boolean ksTest = kolmogorov.executeTest().passesTest();
-                boolean chiTest = chiSquare.isUniform();
-                return ksTest && chiTest;
+                return passesKolmogorov() && passesChiSquare();
         }
+
+        public boolean passesKolmogorov() {
+                return kolmogorov.executeTest().passesTest();
+        }
+
+        public boolean passesChiSquare() {
+                return chiSquare.isUniform();
+        }
+
 }

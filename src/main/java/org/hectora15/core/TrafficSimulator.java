@@ -1,13 +1,11 @@
 package org.hectora15.core;
 
-import org.hectora15.Request;
-import org.hectora15.Server;
+import org.hectora15.logic.Bernoulli;
+import org.hectora15.logic.MersenneTwisterEngine;
+import org.hectora15.logic.Poisson;
+
 import java.util.*;
 
-/**
- * 6. MONTE CARLO METHOD
- * Main simulator: Monte Carlo over server traffic.
- */
 public class TrafficSimulator {
     private Poisson poisson;
     private Bernoulli trial;
@@ -44,12 +42,12 @@ public class TrafficSimulator {
 
                 boolean success;
 
-                // === LÓGICA DE SOBRECARGA ===
-                // Si el número de petición 'i' supera la capacidad del servidor, falla automáticamente
+
+
                 if (i >= server.getCapacity()) {
                     success = false;
                 } else {
-                    // Si el servidor aún tiene espacio, usamos Bernoulli para ver si tiene éxito
+
                     success = trial.trial();
                 }
 

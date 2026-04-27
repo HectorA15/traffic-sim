@@ -1,9 +1,6 @@
-package org.hectora15.core;
+package org.hectora15.logic;
 
-/**
- * 2. BERNOULLI METHOD
- * Bernoulli trial: each request has probability p of success.
- */
+
 public class Bernoulli {
     private double successProbability;
     private MersenneTwisterEngine rng;

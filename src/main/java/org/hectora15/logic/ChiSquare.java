@@ -1,4 +1,4 @@
-package org.hectora15.core;
+package org.hectora15.logic;
 
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 

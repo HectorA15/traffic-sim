@@ -1,11 +1,7 @@
-package org.hectora15.core;
+package org.hectora15.logic;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
-/**
- * 1. MERSENNE TWISTER METHOD
- * Core random number generator engine.
- */
 public class MersenneTwisterEngine {
 
     private MersenneTwister rng;
